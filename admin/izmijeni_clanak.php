@@ -39,14 +39,13 @@
         if(empty($_POST['title'])) { $_nasloverror = '<p style="color: red;">* obavezno</p>'; } // nije unešen naslov
         if(empty($_POST['content'])) { $_sadrzajerror = '<p style="color: red;">* obavezno</p>'; } // nije unešen sadržaj
 
-        if($_FILES['thumbnail']['error'] != 4)
+        if($_FILES['thumbnail']['error'] != 4 && $_POST['new_thumbnail'] == "1")
         {
             $_allowed = array("image/png", "image/jpg", "image/jpeg");
             $_uploaded = $_FILES['thumbnail']['type'];
 
             if(!in_array($_uploaded, $_allowed)) { $_slikaerror = '<p style="color: red;">* nedozvoljen format slike</p>'; }
         }
-        else { $_filename = ''; }
 
         if(empty($_nasloverror) && empty($_sadrzajerror) && empty($_slikaerror))
         {
@@ -54,9 +53,10 @@
             $_naslov = $_POST['title'];
             $_sadrzaj = $_POST['content'];
             $_sazetak = $_POST['summary'];
+            echo $_FILES['thumbnail']['error'] . '<br>' . $_POST['new_thumbnail'] . '<br>';
             $_datum = date("Y-m-d", strtotime($_POST['publish_date']));
 
-            if($_FILES['thumbnail']['error'] != 4)
+            if($_FILES['thumbnail']['error'] != 4 && $_POST['new_thumbnail'] == "1")
             {
                 $_upload_directory = "/images/uploads/";
                 $_temp = explode(".", $_FILES['thumbnail']['name']);
@@ -65,7 +65,32 @@
                 $_filename = $_filename . '.' . end($_temp);
                 move_uploaded_file($_FILES['thumbnail']['tmp_name'], dirname(__DIR__) . $_upload_directory . $_filename);
             }
-            else { $_filename = ''; }
+            else
+            {
+                echo 'test';
+                $_filename = null;
+                
+                $sql = "SELECT article_thumbnailName FROM clanci WHERE article_id = ?";
+
+                if($stmt = mysqli_prepare($connection, $sql))
+                {
+                    mysqli_stmt_bind_param($stmt, "i", $_id_clanka);
+
+                    if(mysqli_stmt_execute($stmt))
+                    {
+                        $result = mysqli_stmt_get_result($stmt);
+                        while($row = mysqli_fetch_assoc($result))
+                        {
+                            $_filepath = dirname(__DIR__) . "/images/uploads/" . $row['article_thumbnailName'];
+                            if(file_exists($_filepath))
+                            {
+                                unlink($_filepath);
+                            }
+                        }
+                    }
+
+                }
+            }
 
 
             $sql = "UPDATE clanci SET article_naslov = ?, article_sazetak = ?, article_tekst = ?, article_datumObjavljivanja = ?, article_thumbnailName = ? WHERE article_id = ? LIMIT 1";
@@ -174,6 +199,8 @@
                             <span><?php if(isset($_slikaerror)) { echo $_slikaerror; } ?></span>
                         </div>
 
+                        <input id="newthumbnail_uploaded" type="hidden" name="new_thumbnail" value="">
+
                         <div class="buttonwrapper">
 
                             <a href="../index.php"><button type="button" class="header-button">Odustani</button></a>
@@ -201,18 +228,21 @@
             const fileUpload = document.getElementById("thumbnail");
             const fileUploadLabel = document.querySelector(".delete-file-upload");
             const thumbPreview = document.querySelector("#thumbnail-preview");
+            const newthumbnail = document.querySelector("#newthumbnail_uploaded");
 
             fileUpload.addEventListener("change", (event) => {
                 var file = fileUpload.files[0];
                 var src = URL.createObjectURL(file);
                 thumbPreview.src = src;
                 fileUploadLabel.style.display = "block";
+                newthumbnail.value = "1"; // 1 = novi thumbnail, 2 = obrisan thumbnail
             });
 
             fileUploadLabel.addEventListener("click", (event) => {
                 fileUpload.val = "";
                 thumbPreview.src = "../images/article_placeholder.png";
                 fileUploadLabel.style.display = "none";
+                newthumbnail.value = "2"; // 1 = novi thumbnail, 2 = obrisan thumbnail
             });
 
             <?php if(!empty($_article_data['article_thumbnailName'])) { ?>                    
