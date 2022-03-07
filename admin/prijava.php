@@ -1,22 +1,23 @@
 <?php
 
+    // uspostavljanje konekcije sa bazom podataka
     require_once (dirname(__DIR__)) . "/includes/db.php";
 
     session_start();
 
-    if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)
-    {
-        header("Location: ../index.php");
-    }
+    // provjera sesije
+    include (dirname(__DIR__)) . "/includes/session.php";
 
+    // forma poslana
     if($_SERVER['REQUEST_METHOD'] == "POST")
     {
-        $_emailerror = $_lozinkaerror = '';
+        $_emailerror = $_lozinkaerror = ''; // isprazni varijable
 
         if(empty($_POST['email'])) // email nije unešen
         {
             $_emailerror = '<p style="color: red;">* obavezno</p>';
         }
+        // ukoliko je email unešen - provjeri da li postoji račun sa tim emailom
         else
         {
             $sql = "SELECT * FROM korisnici WHERE email = ?";
@@ -32,8 +33,9 @@
             }
         }
 
-        if(empty($_POST['password'])) { $_lozinkaerror = '<p style="color: red;">* obavezno</p>'; }
+        if(empty($_POST['password'])) { $_lozinkaerror = '<p style="color: red;">* obavezno</p>'; } // lozinka nije unešena
 
+        // ukoliko su i email i lozinka unešeni - nastavi sa prijavom
         if(empty($_emailerror) && empty($_lozinkaerror))
         {
             $_email = trim($_POST['email']);
@@ -52,6 +54,7 @@
                         mysqli_stmt_bind_result($stmt, $user_id, $_email, $hashed_password, $isAdmin);
                         if(mysqli_stmt_fetch($stmt))
                         {
+                            // lozinka odgovara hashu - prijava uspiješna
                             if(password_verify($_lozinka, $hashed_password))
                             {
                                 $_SESSION['user_id'] = $user_id;

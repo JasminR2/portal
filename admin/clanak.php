@@ -4,6 +4,9 @@
     require_once (dirname(__DIR__)) . "/includes/db.php";
 
     session_start();
+    
+    // provjera sesije
+    require_once (dirname(__DIR__)) . "/includes/session.php";
 
     // izvuci podatke iz baze ukoliko je postavljen ID članka
     if(isset($_GET['id']))

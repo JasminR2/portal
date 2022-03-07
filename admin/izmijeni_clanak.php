@@ -5,6 +5,7 @@
 
     session_start();
 
+    // provjera sesije
     include (dirname(__DIR__)) . "/includes/session.php";
 
     // korisnik nije admin? vrati ga na početnu stranu
@@ -32,13 +33,15 @@
         }
     }
 
+    // forma poslana
     if($_SERVER['REQUEST_METHOD'] == "POST")
     {
-        $_nasloverror = $_sadrzajerror = $_slikaerror = '';
+        $_nasloverror = $_sadrzajerror = $_slikaerror = ''; // isprazni varijable
 
         if(empty($_POST['title'])) { $_nasloverror = '<p style="color: red;">* obavezno</p>'; } // nije unešen naslov
         if(empty($_POST['content'])) { $_sadrzajerror = '<p style="color: red;">* obavezno</p>'; } // nije unešen sadržaj
 
+        // ako array za upload nije prazan i ako je uploadan novi thumbnail - provjeri ekstenziju uploadanog fajla
         if($_FILES['thumbnail']['error'] != 4 && $_POST['new_thumbnail'] == "1")
         {
             $_allowed = array("image/png", "image/jpg", "image/jpeg");
@@ -47,15 +50,16 @@
             if(!in_array($_uploaded, $_allowed)) { $_slikaerror = '<p style="color: red;">* nedozvoljen format slike</p>'; }
         }
 
+        // ako nema grešaka za naslov, sadržaj i sliku
         if(empty($_nasloverror) && empty($_sadrzajerror) && empty($_slikaerror))
         {
             $_id_clanka = $_GET['id'];
             $_naslov = $_POST['title'];
             $_sadrzaj = $_POST['content'];
             $_sazetak = $_POST['summary'];
-            echo $_FILES['thumbnail']['error'] . '<br>' . $_POST['new_thumbnail'] . '<br>';
             $_datum = date("Y-m-d", strtotime($_POST['publish_date']));
 
+            // ako array za upload nije prazan i ako je uploadan novi thumbnail - spremi sliku na server
             if($_FILES['thumbnail']['error'] != 4 && $_POST['new_thumbnail'] == "1")
             {
                 $_upload_directory = "/images/uploads/";
@@ -65,9 +69,9 @@
                 $_filename = $_filename . '.' . end($_temp);
                 move_uploaded_file($_FILES['thumbnail']['tmp_name'], dirname(__DIR__) . $_upload_directory . $_filename);
             }
+            //ako je array za upload prazan i ako je obrisan stari thumbnail - obriši sliku sa servera
             else
             {
-                echo 'test';
                 $_filename = null;
                 
                 $sql = "SELECT article_thumbnailName FROM clanci WHERE article_id = ?";
@@ -91,7 +95,6 @@
 
                 }
             }
-
 
             $sql = "UPDATE clanci SET article_naslov = ?, article_sazetak = ?, article_tekst = ?, article_datumObjavljivanja = ?, article_thumbnailName = ? WHERE article_id = ? LIMIT 1";
             if($stmt = mysqli_prepare($connection, $sql))

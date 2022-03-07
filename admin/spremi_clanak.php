@@ -1,24 +1,28 @@
 <?php
 
+    // uspostavljanje konekcije sa bazom podataka
     require_once (dirname(__DIR__)) . "/includes/db.php";
 
     session_start();
 
+    // provjera sesije
     include (dirname(__DIR__)) . "/includes/session.php";
 
+    // korisnik nije admin? vrati ga na početnu stranu
     if(!isset($_SESSION['isAdmin']) || $_SESSION['isAdmin'] == 0)
     {
         header("Location: ../index.php");
     }
 
-
+    // forma poslana
     if($_SERVER['REQUEST_METHOD'] == "POST")
     {
-        $_nasloverror = $_sadrzajerror = $_slikaerror = '';
+        $_nasloverror = $_sadrzajerror = $_slikaerror = ''; // isprazni varijable
 
         if(empty($_POST['title'])) { $_nasloverror = '<p style="color: red;">* obavezno</p>'; } // nije unešen naslov
         if(empty($_POST['content'])) { $_sadrzajerror = '<p style="color: red;">* obavezno</p>'; } // nije unešen sadržaj
 
+        // ukoliko je uploadan thumbnail - provjeri format
         if($_FILES['thumbnail']['error'] != 4)
         {
             $_allowed = array("image/png", "image/jpg", "image/jpeg");
@@ -27,6 +31,7 @@
             if(!in_array($_uploaded, $_allowed)) { $_slikaerror = '<p style="color: red;">* nedozvoljen format slike</p>'; }
         }
 
+        // ako nema grešaka za naslov, sadržaj i sliku
         if(empty($_nasloverror) && empty($_sadrzajerror) && empty($_slikaerror))
         {
             $_naslov = $_POST['title'];
@@ -34,6 +39,7 @@
             $_sazetak = $_POST['summary'];
             $_datum = date("Y-m-d", strtotime($_POST['publish_date']));
 
+            // ukoliko je uploadovan thumbnail - spremi ga na server pod novim imenom
             if($_FILES['thumbnail']['error'] != 4)
             {
                 $_upload_directory = "/images/uploads/";
@@ -43,7 +49,6 @@
                 $_filename = $_filename . '.' . end($_temp);
                 move_uploaded_file($_FILES['thumbnail']['tmp_name'], dirname(__DIR__) . $_upload_directory . $_filename);
             }
-
 
             $sql = "INSERT INTO clanci (article_naslov, article_sazetak, article_tekst, article_datumObjavljivanja, article_thumbnailName) VALUES (?, ?, ?, ?, ?)";
             if($stmt = mysqli_prepare($connection, $sql))
