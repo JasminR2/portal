@@ -5,9 +5,6 @@
 
     session_start();
 
-    // provjera sesije
-    include (dirname(__DIR__)) . "/includes/session.php";
-
     // forma poslana
     if($_SERVER['REQUEST_METHOD'] == "POST")
     {

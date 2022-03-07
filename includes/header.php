@@ -2,7 +2,7 @@
 
     <div class="container">
 
-        <a href="../index.php" class="header-logo">Portal</a>
+        <a href="/portal/index.php" class="header-logo">Portal</a>
 
         <span>
 

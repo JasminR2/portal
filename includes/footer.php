@@ -34,23 +34,27 @@
 
         <div class="column">
 
-            <h5>Administracija</h5>
+            <?php if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) { ?>           
 
-            <?php
+                <h5>Administracija</h5>
 
-                if(isset($_SESSION['isAdmin']) && $_SESSION['isAdmin'] == 0)
-                {
-                    
-                    echo '<a href="./admin/dodijeli_admina.php">Dodijeli admin status</a>';
+                <?php
 
-                }
+                    if(isset($_SESSION['isAdmin']) && $_SESSION['isAdmin'] == 0)
+                    {
+                        
+                        echo '<a href="./admin/dodijeli_admina.php">Dodijeli admin status</a>';
 
-                else
-                {
-                    echo '<a href="./admin/dodijeli_admina.php">Ukloni admin status</a>';
-                }
+                    }
 
-            ?>
+                    else
+                    {
+                        echo '<a href="./admin/dodijeli_admina.php">Ukloni admin status</a>';
+                    }
+
+                ?>
+            
+            <?php } ?>
 
         </div>
 
