@@ -17,7 +17,7 @@
     // id postavljen - izvuci podatke iz baze
     if(isset($_GET['id']))
     {
-        $sql = "SELECT * FROM clanci WHERE article_id = ?";
+        $sql = "SELECT * FROM clanci WHERE id = ?";
         if($stmt = mysqli_prepare($connection, $sql))
         {
             $temp_id = $_GET['id'];
@@ -74,7 +74,7 @@
             {
                 $_filename = null;
                 
-                $sql = "SELECT article_thumbnailName FROM clanci WHERE article_id = ?";
+                $sql = "SELECT thumbnailNaziv FROM clanci WHERE id = ?";
 
                 if($stmt = mysqli_prepare($connection, $sql))
                 {
@@ -85,7 +85,7 @@
                         $result = mysqli_stmt_get_result($stmt);
                         while($row = mysqli_fetch_assoc($result))
                         {
-                            $_filepath = dirname(__DIR__) . "/images/uploads/" . $row['article_thumbnailName'];
+                            $_filepath = dirname(__DIR__) . "/images/uploads/" . $row['thumbnailNaziv'];
                             if(file_exists($_filepath))
                             {
                                 unlink($_filepath);
@@ -96,7 +96,7 @@
                 }
             }
 
-            $sql = "UPDATE clanci SET article_naslov = ?, article_sazetak = ?, article_tekst = ?, article_datumObjavljivanja = ?, article_thumbnailName = ? WHERE article_id = ? LIMIT 1";
+            $sql = "UPDATE clanci SET naslov = ?, sazetak = ?, sadrzaj = ?, datumObjavljivanja = ?, thumbnailNaziv = ? WHERE id = ? LIMIT 1";
             if($stmt = mysqli_prepare($connection, $sql))
             {
                 mysqli_stmt_bind_param($stmt, "sssssi", $_naslov, $_sazetak, $_sadrzaj, $_datum, $_filename, $_id_clanka);
@@ -150,17 +150,17 @@
                     <div class="column">
 
                         <div class="inputwrapper">
-                            <label for="title">Naslov članka</label>
+                            <label for="title">Naslov članka <span style="color: red;">*</span></label>
                             <!-- dodijeli vrijednost za naslov izvučen iz baze !-->
-                            <input type="text" id="title" name="title" value="<?php echo $_article_data['article_naslov']; ?>" />
+                            <input type="text" id="title" name="title" value="<?php echo $_article_data['naslov']; ?>" />
                             <!-- prikaži grešku za naslov ukoliko postoji !-->
                             <span><?php if(isset($_nasloverror)) { echo $_nasloverror; } ?></span>
                         </div>
 
                         <div class="inputwrapper">
-                            <label for="content">Sadržaj</label>
+                            <label for="content">Sadržaj <span style="color: red;">*</span></label>
                             <!-- dodijeli vrijednost za sadržaj izvučen iz baze !-->
-                            <textarea id="content" name="content"><?php echo $_article_data['article_tekst']; ?></textarea>
+                            <textarea id="content" name="content"><?php echo $_article_data['sadrzaj']; ?></textarea>
                             <!-- prikaži grešku za sadržaj ukoliko postoji !-->
                             <span><?php if(isset($_sadrzajerror)) { echo $_sadrzajerror; } ?></span>
                         </div>
@@ -168,7 +168,7 @@
                         <div class="inputwrapper">
                             <label for="summary">Sažetak</label>
                             <!-- dodijeli vrijednost za sažetak izvučen iz baze !-->
-                            <textarea id="summary" name="summary"><?php echo $_article_data['article_sazetak']; ?></textarea>
+                            <textarea id="summary" name="summary"><?php echo $_article_data['sazetak']; ?></textarea>
                         </div>
 
                     </div>
@@ -176,9 +176,9 @@
                     <div class="column">
 
                         <div class="inputwrapper">
-                            <label for="publish_date">Datum uređivanja</label>
-                            <!-- postavi datum uređivanja na trenutni datum !-->
-                            <input type="text" id="publish_date" name="publish_date" readonly value="<?php echo date("d.m.Y"); ?>">
+                            <label for="publish_date">Datum objavljivanja <span style="color: red;">*</span></label>
+                            <!-- postavi datum objavljivanja na trenutni datum !-->
+                            <input type="date" id="publish_date" name="publish_date" value="<?php echo date("Y-m-d"); ?>" min="<?php echo date("Y-m-d"); ?>">
                         </div>
 
                         <div class="inputwrapper">
@@ -187,11 +187,11 @@
 
                             <!-- da li artikal već ima sliku? ako nema - postavi placeholder, ako ima - prikaži ju !-->
                             <?php
-                                if(empty($_article_data['article_thumbnailName']))
+                                if(empty($_article_data['thumbnailNaziv']))
                                 { ?>
                                 <img src="../images/article_placeholder.png" id="thumbnail-preview" alt="Placeholder" />
                             <?php } else {?>
-                                <img src="../images/uploads/<?=$_article_data['article_thumbnailName'];?>" id="thumbnail-preview" alt="Placeholder" />
+                                <img src="../images/uploads/<?=$_article_data['thumbnailNaziv'];?>" id="thumbnail-preview" alt="Placeholder" />
                             <?php } ?>
 
                             <div class="wrapper">
@@ -248,7 +248,7 @@
                 newthumbnail.value = "2"; // 1 = novi thumbnail, 2 = obrisan thumbnail
             });
 
-            <?php if(!empty($_article_data['article_thumbnailName'])) { ?>                    
+            <?php if(!empty($_article_data['thumbnailNaziv'])) { ?>                    
                 fileUploadLabel.style.display = "block";
             <?php } ?>
 

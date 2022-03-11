@@ -11,7 +11,7 @@
     // izvuci podatke iz baze ukoliko je postavljen ID članka
     if(isset($_GET['id']))
     {
-        $sql = "SELECT * FROM clanci WHERE article_id = ?";
+        $sql = "SELECT * FROM clanci WHERE id = ?";
         if($stmt = mysqli_prepare($connection, $sql))
         {
             $temp_id = $_GET['id'];
@@ -44,7 +44,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400&family=Poppins&family=Raleway:wght@300;500&family=Roboto&family=Nunito&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
-        <title><?php echo $_article_data['article_naslov']; ?> - Portal</title>
+        <title><?php echo $_article_data['naslov']; ?> - Portal</title>
     </head>
 
     <body>
@@ -55,13 +55,13 @@
 
             <div class="article_header">
 
-                <h4><?php echo $_article_data['article_naslov']; ?></h4>
+                <h4><?php echo $_article_data['naslov']; ?></h4>
 
             </div>
 
-            <img src="../images/uploads/<?=$_article_data['article_thumbnailName'];?>" class="article_photo" />
+            <img src="../images/uploads/<?=$_article_data['thumbnailNaziv'];?>" class="article_photo" />
 
-            <p class="article_content"><?=nl2br($_article_data['article_tekst']);?></p>
+            <p class="article_content"><?=nl2br($_article_data['sadrzaj']);?></p>
 
         </section>
         

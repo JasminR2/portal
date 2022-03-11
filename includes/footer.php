@@ -1,6 +1,6 @@
 <?php
 
-    $sql = "SELECT article_id, article_naslov FROM clanci LIMIT 5";
+    $sql = "SELECT id, naslov FROM clanci WHERE DATE(datumObjavljivanja) <= CURDATE() LIMIT 5";
 
     $result = mysqli_query($connection, $sql);
     $_footer_articles = array();
@@ -24,7 +24,7 @@
 
                 foreach($_footer_articles as $article)
                 {
-                    echo '<a href="./admin/clanak.php?id=' . $article['article_id'] . '" target="_blank">' . $article['article_naslov'] . '</a>';
+                    echo '<a href="./admin/clanak.php?id=' . $article['id'] . '" target="_blank">' . $article['naslov'] . '</a>';
                 }
 
             ?>
@@ -43,13 +43,14 @@
                     if(isset($_SESSION['isAdmin']) && $_SESSION['isAdmin'] == 0)
                     {
                         
-                        echo '<a href="./admin/dodijeli_admina.php">Dodijeli admin status</a>';
+                        echo '<a href="/portal/admin/dodijeli_admina.php">Dodijeli admin status</a>';
 
                     }
 
                     else
                     {
-                        echo '<a href="./admin/dodijeli_admina.php">Ukloni admin status</a>';
+                        echo '<a href="/portal/admin/dodijeli_admina.php">Ukloni admin status</a>';
+                        echo '<a href="/portal/admin/lista_clanaka.php">Lista članaka</a>';
                     }
 
                 ?>

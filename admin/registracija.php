@@ -79,13 +79,13 @@
             <form action="registracija.php" id="login" method="POST">
                 
                 <div class="inputwrapper">
-                    <label for="email">E-Mail</label>
+                    <label for="email">E-Mail <span style="color: red;">*</span></label>
                     <input type="email" id="email" name="email" autocomplete="off">
                     <span><?php if(isset($_emailerror)) { echo $_emailerror; } ?></span>
                 </div>
 
                 <div class="inputwrapper">
-                    <label for="password">Lozinka</label>
+                    <label for="password">Lozinka <span style="color: red;">*</span></label>
                     <input type="password" id="password" name="password">
                     <span><?php if(isset($_lozinkaerror)) { echo $_lozinkaerror; } ?></span>
                 </div>

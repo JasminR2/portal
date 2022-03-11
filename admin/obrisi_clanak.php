@@ -17,7 +17,7 @@
     // ako je postavljen ID članka za brisanje - obriši ga iz baze
     if(isset($_GET['id']))
     {
-        $sql = "DELETE FROM clanci WHERE article_id = ?";
+        $sql = "DELETE FROM clanci WHERE id = ?";
         $stmt = mysqli_prepare($connection, $sql);
         
         $temp_id = $_GET['id'];

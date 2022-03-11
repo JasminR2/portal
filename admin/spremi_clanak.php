@@ -17,10 +17,12 @@
     // forma poslana
     if($_SERVER['REQUEST_METHOD'] == "POST")
     {
-        $_nasloverror = $_sadrzajerror = $_slikaerror = ''; // isprazni varijable
+        $_nasloverror = $_sadrzajerror = $_slikaerror = $_datumerror = ''; // isprazni varijable
 
         if(empty($_POST['title'])) { $_nasloverror = '<p style="color: red;">* obavezno</p>'; } // nije unešen naslov
         if(empty($_POST['content'])) { $_sadrzajerror = '<p style="color: red;">* obavezno</p>'; } // nije unešen sadržaj
+
+        if($_POST['publish_date'] < date("Y-m-d")) { $_datumerror = '<p style="color: red;">* nevažeći datum</p>'; } // unešen je datum manji od današnjeg
 
         // ukoliko je uploadan thumbnail - provjeri format
         if($_FILES['thumbnail']['error'] != 4)
@@ -32,12 +34,12 @@
         }
 
         // ako nema grešaka za naslov, sadržaj i sliku
-        if(empty($_nasloverror) && empty($_sadrzajerror) && empty($_slikaerror))
+        if(empty($_nasloverror) && empty($_sadrzajerror) && empty($_slikaerror) && empty($_datumerror))
         {
             $_naslov = $_POST['title'];
             $_sadrzaj = $_POST['content'];
             $_sazetak = $_POST['summary'];
-            $_datum = date("Y-m-d", strtotime($_POST['publish_date']));
+            $_datum = $_POST['publish_date'];
 
             // ukoliko je uploadovan thumbnail - spremi ga na server pod novim imenom
             if($_FILES['thumbnail']['error'] != 4)
@@ -50,7 +52,7 @@
                 move_uploaded_file($_FILES['thumbnail']['tmp_name'], dirname(__DIR__) . $_upload_directory . $_filename);
             }
 
-            $sql = "INSERT INTO clanci (article_naslov, article_sazetak, article_tekst, article_datumObjavljivanja, article_thumbnailName) VALUES (?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO clanci (naslov, sazetak, sadrzaj, datumObjavljivanja, thumbnailNaziv) VALUES (?, ?, ?, ?, ?)";
             if($stmt = mysqli_prepare($connection, $sql))
             {
                 mysqli_stmt_bind_param($stmt, "sssss", $_naslov, $_sazetak, $_sadrzaj, $_datum, $_filename);
@@ -58,6 +60,10 @@
                 {
                     header("Location: ../index.php");
                     $_SESSION['successful_create'] = true;
+                }
+                else
+                {
+                    echo mysqli_error($connection);
                 }
             }
 
@@ -92,13 +98,13 @@
                 <div class="column">
 
                     <div class="inputwrapper">
-                        <label for="title">Naslov članka</label>
+                        <label for="title">Naslov članka <span style="color: red;">*</span></label>
                         <input type="text" id="title" name="title">
                         <span><?php if(isset($_nasloverror)) { echo $_nasloverror; } ?></span>
                     </div>
 
                     <div class="inputwrapper">
-                        <label for="content">Sadržaj</label>
+                        <label for="content">Sadržaj <span style="color: red;">*</span></label>
                         <textarea id="content" name="content"></textarea>
                         <span><?php if(isset($_sadrzajerror)) { echo $_sadrzajerror; } ?></span>
                     </div>
@@ -113,8 +119,9 @@
                 <div class="column">
 
                     <div class="inputwrapper">
-                        <label for="publish_date">Datum objave</label>
-                        <input type="text" id="publish_date" name="publish_date" readonly value="<?php echo date("d.m.Y"); ?>">
+                        <label for="publish_date">Datum objavljivanja <span style="color: red;">*</span></label>
+                        <input type="date" id="publish_date" name="publish_date" value="<?php echo date("Y-m-d"); ?>" min="<?php echo date("Y-m-d"); ?>">
+                        <span><?php if(isset($_datumerror)) { echo $_datumerror; } ?></span>
                     </div>
 
                     <div class="inputwrapper">

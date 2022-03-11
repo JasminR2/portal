@@ -92,7 +92,7 @@ button.new-article:hover { background-color: #3d9c30; }
 button.delete-article { background-color: #eb5757; width: 100%; flex: 1; }
 
 /*========================= [ FORMS ] =========================*/
-input[type="text"], input[type="email"], input[type="password"], textarea
+input[type="text"], input[type="email"], input[type="password"], input[type="date"], textarea
 {
     outline: none;
     border: 1px solid #a8c6df;
@@ -344,7 +344,7 @@ a.title
     margin: .625rem .375rem .25rem .375rem;
 }
 
-p.summary
+p.summary, p.content
 {
     font-size: .875rem;
     padding: 0 .375rem;
@@ -458,7 +458,7 @@ img.article-thumbnail { border-radius: .375rem; }
     .pagination { justify-content: center;}    
 }
 
-/*==================== [ CUSTOM 404 ] ====================*/
+/*========================= [ CUSTOM 404 ] =========================*/
 #error404
 {
     margin: 10vh auto;
@@ -486,7 +486,7 @@ p.error404 {
     color: var(--dark);
 }
 
-/*==================== [ ARTICLE PAGE ] ====================*/
+/*========================= [ ARTICLE PAGE ] =========================*/
 #article_body
 {
     display: flex;
@@ -526,7 +526,56 @@ p.article_content
     
 }
 
-/*==================== [ FOOTER ] ====================*/
+/*========================= [ ARTICLE LIST ] =========================*/
+#articles_list
+{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    margin: 2rem auto;
+}
+
+.articles_list_header
+{
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+}
+
+.articles_table
+{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #a8c6df;
+    border-radius: .25rem;
+    padding: 1rem;
+}
+
+.table_header, .table_body { display: flex; flex-direction: row; }
+.article_title { width: 70%; }
+.article_publishDate, .article_options { width: 15%;  }
+.article_options { text-align: right; }
+
+@media screen and (max-width: 576px)
+{
+    #articles_list { width: 100%; }
+    .table_header { display: none; }  
+    .table_body { flex-direction: column; white-space: nowrap; }
+    .table_body:not(:last-of-type) { margin-bottom: 1rem; border-bottom: 1px solid #a8c6df; }
+
+    .article_title, .article_publishDate, .article_options { width: 100% !important; }
+    .article_title::before { display: inline-block; content: 'Naslov članka:'; width: 38%; font-size: 1.125rem; font-family: 'Nunito', sans-serif; }
+
+    .article_publishDate p { width: fit-content; display: inline; }
+    .article_publishDate::before { display: inline-flex; content: 'Datum objavljivanja:'; width: 38%; font-size: 1.125rem; font-family: 'Nunito', sans-serif; }
+    
+    .article_options { display: block !important; text-align: left; }
+    .article_options::before { display: inline-block; content: 'Opcije:'; width: 38%; font-size: 1.125rem; font-family: 'Nunito', sans-serif; }
+
+    .article_options i { margin-right: 1rem; }
+}
+
+/*========================= [ FOOTER ] =========================*/
 #footer
 {
     clear: both;
@@ -568,3 +617,8 @@ p.article_content
     content: '\b7\a0';
 }
 #footer .column a:hover { text-decoration: underline; }
+
+@media screen and (max-width: 576px) {
+    #footer > .container { flex-direction: column; width: 95%; }
+    #footer .column { width: fit-content; }
+}

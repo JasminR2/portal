@@ -17,14 +17,16 @@
     // id prvog članka na stranici
     $_firstid_on_page = ($_page-1) * $_articles_per_page;
 
-    // prebroji članke u bazi
-    $sql = "SELECT COUNT(*) FROM clanci";
+    // prebroji članke u bazi čiji datum objavljivanja je veći ili jednak današnjem
+    $sql = "SELECT COUNT(*) FROM clanci WHERE datumObjavljivanja <= CURDATE()";
     $result = mysqli_query($connection, $sql);
     $_number_of_articles = mysqli_fetch_array($result)[0];
+    
     // postavi odgovarajući broj stranica (npr. 35 članaka/10 članaka po stranici = 4 stranice)
     $_number_of_pages = ceil($_number_of_articles / $_articles_per_page);
 
-    $sql = "SELECT * FROM clanci LIMIT $_firstid_on_page, $_articles_per_page";
+    // izvuci sve članke iz baze čiji datum objavljivanja je veći ili jednak današnjem
+    $sql = "SELECT * FROM clanci WHERE DATE(datumObjavljivanja) <= CURDATE() LIMIT $_firstid_on_page, $_articles_per_page";
     $result = mysqli_query($connection, $sql);
     $_article_data = array();
     while($row = mysqli_fetch_assoc($result))
@@ -59,6 +61,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400&family=Poppins&family=Raleway:wght@300;500&family=Roboto&family=Nunito&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
         <title>Početna - Portal</title>
     </head>
     <body>
@@ -70,44 +73,45 @@
             <div class="container">
 
                 <?php foreach($_article_data as $article) { 
-                    $_publish_date = new DateTime($article['article_datumObjavljivanja']);
+                    $_publish_date = new DateTime($article['datumObjavljivanja']);
                     $result = $_publish_date->format("d.m.Y");
-                    ?>
-                    
+                ?>                    
 
                     <div class="article-wrapper">
 
                         <?php
                             // thumbnail slika članka
-                            if(!empty($article['article_thumbnailName']))
+                            if(!empty($article['thumbnailNaziv']))
                             { 
-                                echo '<img class="article-thumbnail" src="images/uploads/' . $article['article_thumbnailName'] . '" />';
+                                echo '<img class="article-thumbnail" src="images/uploads/' . $article['thumbnailNaziv'] . '" />';
                             }
                             else
                             {
                                 echo '<img class="article-thumbnail" src="images/placeholder.png" />';
                             }
-                            echo '<div class="article-data"><a class="title" href="admin/clanak.php?id=' . $article['article_id'] . '" target="_blank">' . $article['article_naslov'] . '</a>';
+                            echo '<div class="article-data"><a class="title" href="admin/clanak.php?id=' . $article['id'] . '" target="_blank">' . $article['naslov'] . '</a>';
                             // sažetak članka
-                            if(!empty($article['article_sazetak']))
+                            if(!empty($article['sazetak']))
                             {
-                                echo '<p class="summary">' . htmlspecialchars($article['article_sazetak']) . '</p>'; 
+                                echo '<p class="summary">' . htmlspecialchars($article['sazetak']) . '... <a href="javascript:void(0)" style="font-size: .875rem;" class="readmore">Pročitaj više</a></p>'; 
+                                echo '<p class="content" style="display: none;">' . htmlspecialchars($article['sadrzaj']) . '... <a href="javascript:void(0)" style="font-size: .875rem;" class="readless">Pročitaj manje</a>';
                             }
                             else // ukoliko nema sažetka - izvuci prvih 150 karaktera iz sadržaja
                             {
                                 // ukloni HTML tagove ukoliko postoj iz sadržaja
-                                $article['article_tekst'] = strip_tags($article['article_tekst']);
+                                $shortened = strip_tags($article['sadrzaj']);
                                 // provjeri da li je dužina sadržaja veća od 150 karaktera
-                                if(strlen($article['article_tekst']) > 150)
+                                if(strlen($article['sadrzaj']) > 150)
                                 {
                                     // skrati sadržaj na prvih 150 karaktera
-                                    $_cutoff_string = substr($article['article_tekst'], 0, 150);
+                                    $cutShortened = substr($article['sadrzaj'], 0, 150);
                                     $_endpoint = strrpos($_cutoff_string, ' ');
 
-                                    $article['article_tekst'] = $_endpoint ? substr($_cutoff_string, 0, $_endpoint) : substr($_cutoff_string, 0);
-                                    $article['article_tekst'] .= '... <a href="admin/clanak.php?id=' . $article['article_id'] . '" style="font-size: .875rem;" target="_blank">Pročitaj više</a>';
+                                    $shortened = $_endpoint ? substr($_cutoff_string, 0, $_endpoint) : substr($_cutoff_string, 0);
+                                    $shortened .= '... <a href="javascript:void(0)" style="font-size: .875rem;" class="readmore">Pročitaj više</a>';
                                 }
-                                echo '<p class="summary">' . $article['article_tekst'] . '</p>';
+                                echo '<p class="summary">' . htmlspecialchars($shortened) . '</p>';
+                                echo '<p class="content" style="display: none;">' . htmlspecialchars($article['sadrzaj']) . '... <a href="javascript:void(0)" style="font-size: .875rem;" class="readless">Pročitaj manje</a>';
                             }
 
                             echo '<p class="article-publishdate">Objavljeno: ' . $result . '</p></div>'; 
@@ -121,8 +125,8 @@
                                 <i class="las la-cog fa-fw"></i>
 
                                 <div class="dropdown">
-                                    <a href="admin/izmijeni_clanak.php?id=<?php echo $article['article_id']; ?>"><i class="las la-edit fa-fw"></i> Uredi članak</a>
-                                    <a href="admin/obrisi_clanak.php?id=<?php echo $article['article_id']; ?>"><i class="las la-trash fa-fw"></i> Obriši članak</a>
+                                    <a href="admin/izmijeni_clanak.php?id=<?php echo $article['id']; ?>"><i class="las la-edit fa-fw"></i> Uredi članak</a>
+                                    <a href="admin/obrisi_clanak.php?id=<?php echo $article['id']; ?>"><i class="las la-trash fa-fw"></i> Obriši članak</a>
                                 </div>
                                 
                             </div>
@@ -159,12 +163,30 @@
         <script type="text/javascript">
 
             const articleOptions = document.querySelectorAll(".article-options i");
+            const readmorelinks = document.querySelectorAll("a.readmore");
 
             articleOptions.forEach(function(el) {
                 el.addEventListener("click", (event) => { 
                     if(el.nextElementSibling.style.display === "block") { el.nextElementSibling.style.display = "none"; }
                     else { el.nextElementSibling.style.display = "block"; }
                 });
+            });
+
+            $(document).ready(function()
+            {
+
+                $("a.readmore").on("click", function()
+                {
+                    $(this).parent().css("display", "none");
+                    $(this).parent().next("p.content").css("display", "block");
+                });
+
+                $("a.readless").on("click", function()
+                {
+                    $(this).parent().css("display", "none");
+                    $(this).parent().prev("p.summary").css("display", "block");
+                });
+
             });
 
         </script>
