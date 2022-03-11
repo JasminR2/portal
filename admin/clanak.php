@@ -59,7 +59,10 @@
 
             </div>
 
-            <img src="../images/uploads/<?=$_article_data['thumbnailNaziv'];?>" class="article_photo" />
+            <?php 
+                if(!empty($article['thumbnailNaziv'])) { echo '<img class="article-thumbnail" src="/portal/images/uploads/' . $article['thumbnailNaziv'] . '" />'; }
+                else { echo '<img class="article-thumbnail" src="/portal/images/placeholder.png" />'; }
+            ?>
 
             <p class="article_content"><?=nl2br($_article_data['sadrzaj']);?></p>
 

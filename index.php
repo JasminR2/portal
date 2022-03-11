@@ -93,24 +93,24 @@
                             // sažetak članka
                             if(!empty($article['sazetak']))
                             {
-                                echo '<p class="summary">' . htmlspecialchars($article['sazetak']) . '... <a href="javascript:void(0)" style="font-size: .875rem;" class="readmore">Pročitaj više</a></p>'; 
+                                echo '<p class="summary">' . htmlspecialchars($article['sazetak']); 
                                 echo '<p class="content" style="display: none;">' . htmlspecialchars($article['sadrzaj']) . '... <a href="javascript:void(0)" style="font-size: .875rem;" class="readless">Pročitaj manje</a>';
                             }
                             else // ukoliko nema sažetka - izvuci prvih 150 karaktera iz sadržaja
                             {
                                 // ukloni HTML tagove ukoliko postoj iz sadržaja
-                                $shortened = strip_tags($article['sadrzaj']);
+                                $shortened = htmlspecialchars($article['sadrzaj']);
                                 // provjeri da li je dužina sadržaja veća od 150 karaktera
                                 if(strlen($article['sadrzaj']) > 150)
                                 {
                                     // skrati sadržaj na prvih 150 karaktera
                                     $cutShortened = substr($article['sadrzaj'], 0, 150);
-                                    $_endpoint = strrpos($_cutoff_string, ' ');
+                                    $_endpoint = strrpos($cutShortened, ' ');
 
-                                    $shortened = $_endpoint ? substr($_cutoff_string, 0, $_endpoint) : substr($_cutoff_string, 0);
+                                    $shortened = $_endpoint ? substr($cutShortened, 0, $_endpoint) : substr($cutShortened, 0);
                                     $shortened .= '... <a href="javascript:void(0)" style="font-size: .875rem;" class="readmore">Pročitaj više</a>';
                                 }
-                                echo '<p class="summary">' . htmlspecialchars($shortened) . '</p>';
+                                echo '<p class="summary">' . $shortened . '</p>';
                                 echo '<p class="content" style="display: none;">' . htmlspecialchars($article['sadrzaj']) . '... <a href="javascript:void(0)" style="font-size: .875rem;" class="readless">Pročitaj manje</a>';
                             }
 

@@ -10,5 +10,4 @@ CREATE TABLE clanci
                     sazetak varchar(192) NOT NULL,
                     sadrzaj text NOT NULL,
                     datumObjavljivanja date NOT NULL,
-                    thumbnailNaziv varchar(32),
-                    FULLTEXT(naslov, sazetak, sadrzaj));
+                    thumbnailNaziv varchar(32));

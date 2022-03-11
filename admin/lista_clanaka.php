@@ -17,17 +17,21 @@
     if(isset($_GET['query']))
     {
         $_searchTerms = explode(" ", $_GET['query']);
-        $_against = '';
 
-        for($i = 0; $i < count($_searchTerms); $i++)
+        $sql = "SELECT id, naslov, datumObjavljivanja FROM clanci WHERE 1=1";
+
+        foreach($_searchTerms as $query)
         {
-            $_against .= ' +' . $_searchTerms[$i];
+            $sql .= " AND CONCAT(`naslov`, `sadrzaj`, `sazetak`) LIKE CONCAT('%', ?, '%')";
         }
 
-        $sql = "SELECT id, naslov, datumObjavljivanja FROM clanci WHERE MATCH (naslov, sadrzaj, sazetak) AGAINST (? IN BOOLEAN MODE)";
+        $sql .= " ORDER BY datumObjavljivanja DESC";
+
         if($stmt = mysqli_prepare($connection, $sql))
         {
-            mysqli_stmt_bind_param($stmt, "s", $_against);
+
+            mysqli_stmt_bind_param($stmt, str_repeat("s", count($_searchTerms)), ...$_searchTerms);
+
             if(mysqli_stmt_execute($stmt))
             {
                 $result = mysqli_stmt_get_result($stmt);
@@ -36,6 +40,7 @@
                     $_data_arr[] = $row;
                 }
             }
+
         }
 
     }
@@ -129,8 +134,8 @@
 
                         <div class="article_options" style="display: flex; justify-content: flex-end; column-gap: 1rem;">
 
-                            <a href="admin/izmijeni_clanak.php?id=<?php echo $article['id']; ?>" style="color: #2d9cdb; font-size: 1.125rem" title="Uredi članak"><i class="las la-edit fa-fw"></i></a>
-                            <a href="admin/obrisi_clanak.php?id=<?php echo $article['id']; ?>" style="color: #2d9cdb; font-size: 1.125rem" title="Obriši članak"><i class="las la-trash fa-fw"></i></a>
+                            <a href="/portal/admin/izmijeni_clanak.php?id=<?php echo $article['id']; ?>" style="color: #2d9cdb; font-size: 1.125rem" title="Uredi članak"><i class="las la-edit fa-fw"></i></a>
+                            <a href="/portal/admin/obrisi_clanak.php?id=<?php echo $article['id']; ?>" style="color: #2d9cdb; font-size: 1.125rem" title="Obriši članak"><i class="las la-trash fa-fw"></i></a>
 
                         </div>
 
